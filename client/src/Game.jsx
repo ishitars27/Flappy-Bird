@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import Bird from './components/Bird';
-import Pipe from './components/Pipes';
+import Bird from './components/bird';
+import Pipe from './components/pipes';
 import Ground from './components/Ground';
 
 // Game constants

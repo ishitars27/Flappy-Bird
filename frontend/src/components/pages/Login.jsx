@@ -1,9 +1,8 @@
-import React from "react";
-import { MdLogin } from "react-icons/md";
-import { TextField, Button, Divider } from "@mui/material";
-import { Google, ArrowBack } from "@mui/icons-material";
+import React, { useState } from "react";
+import { MdLogin, MdArrowBack, MdOutlinePassword } from "react-icons/md";
+import { FcGoogle } from "react-icons/fc";
 import * as Yup from "yup";
-import { Form, Formik } from "formik";
+import { Formik } from "formik";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import httpAction from "../../utils/httpActions";
@@ -15,10 +14,6 @@ const initialState = {
   password: "",
 };
 
-const loginWithGoogle = ()=>{
-  window.location.href = 'http://localhost:3000/auth/google'
-}
-
 const validationSchema = Yup.object({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string()
@@ -26,25 +21,28 @@ const validationSchema = Yup.object({
     .required("Password is required"),
 });
 
+const loginWithGoogle = ()=>{
+  window.location.href = 'http://localhost:3000/auth/google'
+}
+
 const Login = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
-  const submitHandler = async(values) => {
+  const submitHandler = async (values) => {
     try {
-      //console.log(values);
       const data = {
-            url: apis().loginUser,
-            method: "POST",
-            body: values,
-          };
-      
+        url: apis().loginUser,
+        method: "POST",
+        body: values,
+      };
+  
       const result = await httpAction(data);
       if (result?.success) {
         toast.success(result?.message);
-        localStorage.setItem('token', result?.accessToken); // Store the accessToken in localStorage
+        localStorage.setItem('token', result?.accessToken);
         navigate("/dashboard");
       } else {
-        // Handle error case
         toast.error(result?.message || "Login failed");
       }
     } catch (error) {
@@ -60,99 +58,113 @@ const Login = () => {
         validationSchema={validationSchema}
         initialValues={initialState}
       >
-        {({ handleBlur, handleChange, values, touched, errors }) => (
-          <Form>
+        {({ handleBlur, handleChange, handleSubmit, values, touched, errors }) => (
+          <form onSubmit={handleSubmit} className="auth-form">
             <div className="auth_card">
               <div className="container-fluid">
                 <div className="header-section">
                   <div className="login-icon">
-                    <MdLogin />
+                    <MdLogin className="login-icon-svg" />
                   </div>
-                  <p className="welcome-text">Welcome back</p>
+                  <h1 className="welcome-text">Welcome back</h1>
                   <span className="subtitle">Login to continue</span>
                 </div>
 
                 <div className="form-field">
-                  <TextField
-                    name="email"
-                    value={values.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.email && Boolean(errors.email)}
-                    helperText={touched.email && errors.email}
-                    label="Your email"
-                    fullWidth
-                    variant="outlined"
-                  />
+                  <div className="input-group">
+                    <input
+                      type="email"
+                      name="email"
+                      value={values.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      placeholder="Your email"
+                      className={`form-input ${touched.email && errors.email ? 'error' : ''}`}
+                    />
+                    {touched.email && errors.email && (
+                      <div className="error-message">{errors.email}</div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="form-field">
-                  <TextField
-                    type="password"
-                    name="password"
-                    value={values.password}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.password && Boolean(errors.password)}
-                    helperText={touched.password && errors.password}
-                    label="Your password"
-                    fullWidth
-                    variant="outlined"
-                  />
+                  <div className="input-group">
+                    <div className="password-input">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={values.password}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder="Your password"
+                        className={`form-input ${touched.password && errors.password ? 'error' : ''}`}
+                      />
+                      <button 
+                        type="button" 
+                        className="toggle-password"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        <MdOutlinePassword />
+                      </button>
+                    </div>
+                    {touched.password && errors.password && (
+                      <div className="error-message">{errors.password}</div>
+                    )}
+                  </div>
                 </div>
 
+
                 <div className="form-field">
-                  <Button 
-                    variant="contained" 
-                    fullWidth 
+                  <button 
                     type="submit"
                     className="login-button"
                   >
                     Login
-                  </Button>
+                  </button>
                 </div>
 
                 <div className="divider-section">
-                  <Divider>OR</Divider>
+                  <div className="divider">OR</div>
                 </div>
 
+
                 <div className="form-field">
-                  <Button 
-                  onClick={loginWithGoogle}
-                    variant="outlined" 
-                    fullWidth 
-                    endIcon={<Google />}
+                  <button 
+                    type="button"
+                    onClick={loginWithGoogle}
                     className="google-button"
                   >
+                    <FcGoogle className="google-icon" />
                     Continue with Google
-                  </Button>
+                  </button>
                 </div>
 
+
                 <div className="form-field">
-                  <Button 
-                    onClick={()=>navigate('/register')}
-                    startIcon={<ArrowBack/>} 
-                    variant="outlined" 
-                    fullWidth
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/register')}
                     className="signup-button"
                   >
+                    <MdArrowBack className="back-icon" />
                     Create new account
-                  </Button>
+                  </button>
                 </div>
 
+
                 <div className="form-field">
-                  <Button 
-                  onClick={()=>navigate('/forgetpassword')}
-                    variant="text" 
-                    color="error"
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/forgetpassword')}
                     className="forgot-password"
                   >
                     Forgot password?
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
-          </Form>
+          </form>
         )}
       </Formik>
     </div>

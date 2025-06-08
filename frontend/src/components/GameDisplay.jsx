@@ -21,7 +21,26 @@ const GAME_STATES = {
   GAME_OVER: 'GAME_OVER',
 };
 
+let bgAudio; // declare once outside component
+
+const playbg = () => {
+  if (!bgAudio) {
+    bgAudio = new Audio("/bg.mp3");
+    bgAudio.loop = true;
+    bgAudio.volume = 0.5; // optional
+  }
+  bgAudio.play();
+};
+
+const stopbg = () => {
+  if (bgAudio) {
+    bgAudio.pause();
+    bgAudio.currentTime = 0;
+  }
+};
+
 function GameDisplay() {
+  // playbg()
   // Game state
   const [gameState, setGameState] = useState(GAME_STATES.IDLE);
   const [score, setScore] = useState(0);
@@ -75,8 +94,12 @@ function GameDisplay() {
     }
     
     velocity.current = JUMP_FORCE;
+    playjump()
   }, [gameState, startGame]);
-
+const playjump=()=>{
+  const audio = new Audio("/jump.mp3");
+  audio.play();
+}
   // Check for collisions
   const checkCollision = useCallback((pipes) => {
     // Check collision with ground
@@ -110,7 +133,10 @@ function GameDisplay() {
       return false;
     });
   }, [birdPosition]);
-
+const playpoint=()=>{
+  const audio = new Audio("/point.mp3");
+  audio.play();
+}
   // Check if bird passed a pipe
   const checkPipePassed = useCallback((pipes) => {
     const birdLeft = 100;
@@ -120,11 +146,12 @@ function GameDisplay() {
     newPipes = newPipes.map(pipe => {
       if (!pipe.passed && pipe.x + PIPE_WIDTH < birdLeft) {
         scoreIncrement++;
+        playpoint();
         return { ...pipe, passed: true };
       }
       return pipe;
     });
-    
+  
     if (scoreIncrement > 0) {
       setScore(prev => prev + scoreIncrement);
     }
@@ -169,7 +196,10 @@ function GameDisplay() {
         
         return newPipes;
       });
-
+const playdie=()=>{
+  const audio = new Audio("/die1.mp3");
+  audio.play();
+} 
       // Update ground position for scrolling effect
       groundPosition.current = (groundPosition.current - PIPE_SPEED) % 16;
 
@@ -178,6 +208,7 @@ function GameDisplay() {
         const updatedPipes = checkPipePassed(currentPipes);
         if (checkCollision(updatedPipes)) {
           setGameState(GAME_STATES.GAME_OVER);
+          playdie();
           setHighScore(prev => Math.max(prev, score + (updatedPipes.filter(p => p.passed).length - score)));
           return updatedPipes;
         }
@@ -273,7 +304,7 @@ function GameDisplay() {
           groundHeight={GROUND_HEIGHT}
         />
       ))}
-
+{/* {playbg()} */}
       {/* Ground */}
       <Ground 
         position={groundPosition.current} 
@@ -298,7 +329,7 @@ function GameDisplay() {
           color: 'white',
           textAlign: 'center',
         }}>
-          <h2 style={{fontSize: '10rem', fontFamily: 'Jersey 20'}}>Game Over!</h2>
+          <h2 style={{fontSize: '5rem', fontFamily: 'Jersey 20'}}>Game Over!</h2>
           <p>Score: {score}</p>
           <p>High Score: {highScore}</p>
           <button 
@@ -321,6 +352,7 @@ function GameDisplay() {
 
       {/* Start Screen */}
       {gameState === GAME_STATES.IDLE && (
+        
         <div style={{
           position: 'absolute',
           top: 0,
@@ -336,6 +368,7 @@ function GameDisplay() {
           color: 'white',
           textAlign: 'center',
         }}>
+         
           <h2>Flappy Bird</h2>
           <p>Click or press SPACE to start</p>
           <p>Press SPACE to jump</p>

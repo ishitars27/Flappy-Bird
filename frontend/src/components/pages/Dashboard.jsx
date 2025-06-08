@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import httpAction from "../../utils/httpActions";
 import apis from "../../utils/apis";
 import { Button, Avatar } from "@mui/material";
 import { Logout } from "@mui/icons-material";
-import './style/Dashboard.css';
+import "./style/Dashboard.css";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import GameDisplay from '../GameDisplay';
-import Footer from '../Footer';
-
-
+import GameDisplay from "../GameDisplay";
+import Footer from "../Footer";
+import { CiUser } from "react-icons/ci";
 const Dashboard = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,7 +23,7 @@ const Dashboard = () => {
           method: "GET",
         };
         const result = await httpAction(data);
-        
+
         if (result?.success) {
           setUserProfile(result.user); // Change this line
         } else {
@@ -42,9 +41,9 @@ const Dashboard = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); 
+    localStorage.removeItem("token");
     toast.success("Logged out successfully");
-    navigate('/');
+    navigate("/");
   };
 
   if (loading) {
@@ -57,18 +56,19 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {/* Leaderboard Button at Top Left */}
+      <div className="leaderboard-btn-container">
+        <button className="leaderboardbtn" onClick={() => navigate("/leaderboard")}>
+          🏆 Leaderboard
+        </button>
+      </div>
+
       {/* User Profile Section */}
       <div className="user-profile-section">
         <div className="profile-header">
-          <Avatar 
-            sx={{ width: 60, height: 60 }}
-            src={userProfile?.avatar || userProfile?.profilePicture}
-          >
-            {userProfile?.name?.charAt(0)?.toUpperCase() || 'U'}
-          </Avatar>
-          <div className="profile-info">
-            <h2>Welcome, {userProfile?.name || 'User'}!</h2>
-            <p>{userProfile?.email}</p>
+          <div className="user-email">
+            <CiUser size={20} style={{ marginRight: '8px' }} />
+            {userProfile?.email}
           </div>
           <div className="profile-actions">
             <Button
@@ -83,11 +83,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className='app'>
+      <div className="app">
         <h1>Flappy Bird</h1>
-        <GameDisplay/>
-        <Footer/>
-      </div> 
+        <GameDisplay />
+        <Footer />
+      </div>
     </div>
   );
 };

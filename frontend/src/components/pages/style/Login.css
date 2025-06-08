@@ -1,6 +1,13 @@
 /* Flappy Bird Inspired Login Design */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P:wght@400&family=Roboto:wght@300;400;500;600&display=swap');
 
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 .login-container {
   min-height: 100vh;
   background: linear-gradient(180deg, #70c5ce 0%, #87ceeb 50%, #98fb98 100%);
@@ -11,6 +18,7 @@
   padding: 20px;
   position: relative;
   overflow: hidden;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Animated clouds background */
@@ -27,6 +35,7 @@
     radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.7) 12px, transparent 13px);
   animation: float 20s ease-in-out infinite;
   pointer-events: none;
+  z-index: 0;
 }
 
 @keyframes float {
@@ -34,6 +43,7 @@
   50% { transform: translateY(-10px); }
 }
 
+/* Auth Card */
 .auth_card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -47,6 +57,7 @@
   width: 100%;
   border: 3px solid #ffd700;
   position: relative;
+  z-index: 1;
   animation: cardBounce 0.6s ease-out;
 }
 
@@ -76,6 +87,7 @@
   border-radius: 4px;
   top: -15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
 }
 
 .auth_card::before {
@@ -90,6 +102,7 @@
   padding: 0;
 }
 
+/* Header Section */
 .header-section {
   text-align: center;
   margin-bottom: 35px;
@@ -103,7 +116,7 @@
   height: 80px;
   background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
   border-radius: 50%;
-  margin-bottom: 20px;
+  margin: 0 auto 20px;
   box-shadow: 
     0 8px 20px rgba(255, 215, 0, 0.3),
     inset 0 2px 4px rgba(255, 255, 255, 0.5);
@@ -122,7 +135,7 @@
   }
 }
 
-.login-icon svg {
+.login-icon-svg {
   font-size: 35px;
   color: #2c5530;
 }
@@ -142,68 +155,95 @@
   font-weight: 400;
 }
 
+/* Form Elements */
 .form-field {
   margin-bottom: 25px;
+  position: relative;
 }
 
-/* Custom Material-UI overrides - FIXED INPUT TEXT COLOR */
-.form-field .MuiTextField-root {
+.input-group {
+  width: 100%;
+}
+
+.form-input {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.8);
-  border-radius: 12px;
-}
-
-.form-field .MuiOutlinedInput-root {
-  border-radius: 12px;
   transition: all 0.3s ease;
+  font-family: 'Roboto', sans-serif;
 }
 
-.form-field .MuiOutlinedInput-root:hover {
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.form-input:focus {
+  outline: none;
+  border-color: #32cd32;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(50, 205, 50, 0.2);
 }
 
-.form-field .MuiOutlinedInput-root.Mui-focused {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.2);
+.form-input.error {
+  border-color: #ff6b6b;
 }
 
-/* FIX: Input text color */
-.form-field .MuiOutlinedInput-input {
-  color: #333333 !important;
+.error-message {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin-top: 5px;
   font-weight: 500;
 }
 
-/* FIX: Placeholder text color */
-.form-field .MuiOutlinedInput-input::placeholder {
-  color: #666666 !important;
-  opacity: 0.8;
+/* Password Input */
+.password-input {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-/* FIX: Input field focus text color */
-.form-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-input {
-  color: #222222 !important;
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  transition: color 0.2s;
 }
 
-.form-field .MuiInputLabel-root {
+.toggle-password:hover {
+  color: #2c5530;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
   font-family: 'Roboto', sans-serif;
   font-weight: 500;
-  color: #555555 !important;
-}
-
-/* FIX: Focused label color */
-.form-field .MuiInputLabel-root.Mui-focused {
-  color: #2c5530 !important;
+  transition: all 0.3s ease;
+  border: none;
+  outline: none;
 }
 
 .login-button {
-  background: linear-gradient(135deg, #32cd32 0%, #228b22 100%) !important;
-  color: rgb(2, 2, 2) !important;
-  font-family: 'Press Start 2P', cursive !important;
-  font-size: 12px !important;
-  padding: 15px !important;
-  border-radius: 12px !important;
-  border: 2px solid #ffd700 !important;
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #32cd32 0%, #228b22 100%);
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(34, 139, 34, 0.3);
   text-transform: none !important;
   transition: all 0.3s ease !important;
   box-shadow: 0 6px 20px rgba(50, 205, 50, 0.3) !important;

@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import Bird from './components/bird';
-import Pipe from './components/Pipes';
-import Ground from './components/Ground';
+import Bird from './Bird';
+import Pipe from './Pipe';
+import Ground from './Ground';
 
 // Game constants
 const GRAVITY = 0.4;
@@ -21,7 +21,7 @@ const GAME_STATES = {
   GAME_OVER: 'GAME_OVER',
 };
 
-function Game() {
+function GameDisplay() {
   // Game state
   const [gameState, setGameState] = useState(GAME_STATES.IDLE);
   const [score, setScore] = useState(0);
@@ -345,4 +345,4 @@ function Game() {
   );
 }
 
-export default Game;
+export default GameDisplay;

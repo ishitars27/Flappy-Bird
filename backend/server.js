@@ -15,7 +15,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://flappybird-fdme.vercel.app",
     credentials: true,
   })
 );
@@ -70,11 +70,11 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173", 
+    failureRedirect: "https://flappybird-fdme.vercel.app", 
   }),
   googleAuth,
   (req, res, next) => {
-    res.redirect("http://localhost:5173/dashboard");
+    res.redirect("https://flappybird-fdme.vercel.app/dashboard");
   }
 );
 

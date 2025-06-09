@@ -7,6 +7,8 @@ import { ArrowBack } from "@mui/icons-material";
 import CountDown from 'react-countdown';
 import './style/OtpVerify.css';
 import { useNavigate } from "react-router-dom";
+import apis from '../../utils/apis';
+import httpAction from '../../utils/httpActions';
 
 
 const OtpVerify = () => {
@@ -30,10 +32,33 @@ const OtpVerify = () => {
     otp6: Yup.number().required('')
   });
 
-  const submitHandler = (values) => {
-    console.log(values);
-    navigate('/update/password')
+    const submitHandler = async (values) => {
+  // Combine OTP fields
+  const otp = 
+    values.otp1 + 
+    values.otp2 + 
+    values.otp3 + 
+    values.otp4 + 
+    values.otp5 + 
+    values.otp6;
+
+  // Prepare request data
+  const data = {
+    url: apis().otpVerify,
+    method: "POST",
+    body: { otp: otp }
   };
+
+  // Make HTTP request
+  const result = await httpAction(data);
+  console.log(result);
+
+  // Navigate to password update page
+  navigate('/update/password')
+};
+
+   
+  
 
   const otpArray = ['otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6'];
 
@@ -144,7 +169,7 @@ const OtpVerify = () => {
                     variant="outlined"
                     fullWidth
                     className="back-button"
-                     onClick={()=> navigate('/login')}
+                     onClick={()=> navigate('/')}
                   >
                     Back to Login
                   </Button>

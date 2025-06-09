@@ -63,12 +63,15 @@ function GameDisplay() {
   const [highScore, setHighScore] = useState(0);
   const [birdPosition, setBirdPosition] = useState(GAME_AREA_HEIGHT / 2 - 100);
   const [pipes, setPipes] = useState([]);
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [showHighScoreMessage, setShowHighScoreMessage] = useState(false);
   
   const gameAreaRef = useRef(null);
   const animationFrameId = useRef(null);
   const velocity = useRef(0);
   const groundPosition = useRef(0);
   const scoreRef = useRef(0); // Keep scoreRef updated
+  const previousHighScore = useRef(0); // Track previous high score
 
   // Keep scoreRef updated whenever score changes
   useEffect(() => {
@@ -84,15 +87,15 @@ function GameDisplay() {
       };
       const result = await httpAction(data);
       if (result?.success) {
+        previousHighScore.current = highScore; // Store previous high score
         setHighScore(result.highestScore);
-        console.log("✅ Fetched highest score:", result.highestScore);
       } else {
         console.error("❌ Failed to fetch highest score:", result?.message);
       }
     } catch (error) {
       console.error("❌ Error fetching highest score:", error);
     }
-  }, []);
+  }, [highScore]);
 
   // Fetch high score on component mount
   useEffect(() => {
@@ -101,7 +104,6 @@ function GameDisplay() {
 
   // Debugging: Log highScore whenever it changes
   useEffect(() => {
-    console.log("Current High Score State:", highScore);
   }, [highScore]);
 
   // Generate a new pipe pair
@@ -125,6 +127,8 @@ function GameDisplay() {
     setBirdPosition(GAME_AREA_HEIGHT / 2 - BIRD_SIZE / 2);
     setPipes([]);
     setScore(0);
+    setIsNewHighScore(false);
+    setShowHighScoreMessage(false);
     velocity.current = 0;
     groundPosition.current = 0;
   }, []);
@@ -216,7 +220,6 @@ function GameDisplay() {
   // Save score to server
   const saveScore = useCallback(async (finalScore) => {
     try {
-      console.log("✅ Attempting to save score:", finalScore);
       const data = {
         url: apis().saveScore,
         method: "POST",
@@ -224,7 +227,18 @@ function GameDisplay() {
       };
       const result = await httpAction(data);
       if (result?.success) {
-        console.log("✅ Score saved successfully:", result);
+        
+        // Check if this is a new high score
+        if (finalScore > highScore) {
+          setIsNewHighScore(true);
+          setShowHighScoreMessage(true);
+          
+          // Hide the message after 3 seconds
+          setTimeout(() => {
+            setShowHighScoreMessage(false);
+          }, 3000);
+        }
+        
         fetchHighestScore(); // Fetch highest score again after saving
       } else {
         console.error("❌ Failed to save score:", result?.message);
@@ -232,7 +246,7 @@ function GameDisplay() {
     } catch (error) {
       console.error("❌ Error saving score:", error);
     }
-  }, [fetchHighestScore]);
+  }, [fetchHighestScore, highScore]);
 
   // Game loop
   useEffect(() => {
@@ -287,7 +301,6 @@ function GameDisplay() {
           // Schedule score saving at the end of current JS task queue
           setTimeout(() => {
             const finalScore = scoreRef.current;
-            console.log("Current Score:", scoreRef.current);
             saveScore(finalScore);
           }, 0);
         }
@@ -366,6 +379,31 @@ function GameDisplay() {
         {score}
       </div>
 
+      {/* High Score Celebration Message */}
+      {showHighScoreMessage && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "rgba(255, 215, 0, 0.95)",
+            color: "#ff6b35",
+            padding: "20px",
+            borderRadius: "15px",
+            fontSize: "24px",
+            fontWeight: "bold",
+            textAlign: "center",
+            zIndex: 30,
+            border: "3px solid #ff6b35",
+            boxShadow: "0 0 20px rgba(255, 215, 0, 0.8)",
+            animation: "bounce 0.6s ease-in-out",
+          }}
+        >
+          🎉 Yoohoo! You got a high score! 🎉
+        </div>
+      )}
+
       {/* Bird */}
       <Bird
         position={birdPosition}
@@ -417,6 +455,11 @@ function GameDisplay() {
           </h2>
           <p>Score: {score}</p>
           <p>High Score: {highScore}</p>
+          {isNewHighScore && (
+            <p style={{ color: "#FFD700", fontSize: "18px", fontWeight: "bold" }}>
+              🎉 NEW HIGH SCORE! 🎉
+            </p>
+          )}
           <button
             onClick={startGame}
             style={{
@@ -459,6 +502,21 @@ function GameDisplay() {
           <p>Press SPACE to jump</p>
         </div>
       )}
+
+      {/* CSS for bounce animation */}
+      <style jsx>{`
+        @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% {
+            transform: translate(-50%, -50%) translateY(0);
+          }
+          40% {
+            transform: translate(-50%, -50%) translateY(-10px);
+          }
+          60% {
+            transform: translate(-50%, -50%) translateY(-5px);
+          }
+        }
+      `}</style>
     </div>
   );
 }

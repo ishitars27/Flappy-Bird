@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/userModel");
-const generateToken = require("./googleAuthControllers"); 
+const generateToken = require("./googleAuthControllers");
 
 // Register User
 const registerUser = async (req, res) => {
@@ -57,7 +57,7 @@ const loginUser = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    const accessToken = generateToken(user.email); 
+    const accessToken = generateToken(user.email);
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
@@ -71,4 +71,13 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const logout = async (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+  res.status(200).json({ success: true, message: "Logged out" });
+};
+
+module.exports = { registerUser, loginUser, logout };

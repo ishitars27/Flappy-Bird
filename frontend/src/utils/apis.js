@@ -5,7 +5,10 @@ const apis = () => {
     loginUser : `${local}/users/login`,
     userProfile : `${local}/users/get-user`,
     saveScore: `${local}/api/scores/save`,
-    getUserHighestScore: `${local}/api/scores/my-highest` // Add this line
+    getUserHighestScore: `${local}/api/scores/my-highest` ,// Add this line
+    logout : `${local}/users/logout`,
+    forgetPassword: `${local}/users/forget`,
+    otpVerify: `${local}/users/otp/verify`
   };
   return list;
 };

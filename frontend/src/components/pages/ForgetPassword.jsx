@@ -5,9 +5,15 @@ import * as Yup from "yup";
 import { Form, Formik } from "formik";
 import { MdOutlineLockReset } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import './style/ForgetPassword.css'
+import { toast } from "react-hot-toast";
+import './style/ForgetPassword.css';
+import httpAction from "../../utils/httpActions";
+import apis from "../../utils/apis";
+
 
 const ForgetPassword = () => {
+  const navigate = useNavigate();
+
   const initialState = {
     email: "",
   };
@@ -16,10 +22,28 @@ const ForgetPassword = () => {
     email: Yup.string().email("Invalid email").required("Email is required"),
   });
 
-  const submitHandler = (values) => {
-    console.log(values);
+  const submitHandler = async (values) => {
+    try {
+      const data = {
+        url: apis().forgetPassword,
+        method: "POST",
+        body: { email: values.email },
+      };
+
+      const result = await httpAction(data);
+
+      if (result?.status) {
+        toast.success(result?.message || "OTP sent successfully");
+        navigate("/otp");
+        localStorage.getItem("email",values.email)
+      } else {
+        toast.error(result?.message || "Something went wrong");
+      }
+    } catch (error) {
+      toast.error("Server error. Please try again.");
+      console.error("Forgot password error:", error);
+    }
   };
-  const navigate = useNavigate()
 
   return (
     <div className="forget-password-container">
@@ -59,7 +83,6 @@ const ForgetPassword = () => {
 
                   <div className="form-field">
                     <Button
-                      onClick={() => navigate("/otp")}
                       variant="contained"
                       fullWidth
                       type="submit"

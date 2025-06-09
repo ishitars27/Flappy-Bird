@@ -7,8 +7,7 @@ const saveScore = async (req, res) => {
     const { score } = req.body;
     const userId = req.user.id; // Assuming this is set correctly
 
-    console.log("💬 Incoming score:", score);
-    console.log("🔑 User ID:", userId);
+    
 
     if (score < 0) {
       return res.status(400).json({ success: false, message: 'Invalid score' });
@@ -18,7 +17,6 @@ const saveScore = async (req, res) => {
     let userScore = await Score.findOne({ user: userId });
     let user = await User.findById(userId); // Fetch the user to update highestScore
 
-    console.log("📌 Existing Score record:", userScore);
 
     if (userScore) {
       if (score > userScore.score) {
@@ -28,12 +26,9 @@ const saveScore = async (req, res) => {
         if (user && score > user.highestScore) {
           user.highestScore = score;
           await user.save();
-          console.log("✅ User's highest score updated to:", score);
         }
-        console.log("✅ Score updated to:", score);
         return res.status(200).json({ success: true, message: 'Score updated successfully', score: userScore.score });
       } else {
-        console.log("ℹ️ Incoming score is not higher:", score, "<=", userScore.score);
         return res.status(200).json({ success: true, message: 'Score not higher than existing record', score: userScore.score });
       }
     } else {

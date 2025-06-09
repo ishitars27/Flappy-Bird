@@ -26,9 +26,7 @@ const Dashboard = () => {
 
         if (result?.success) {
           setUserProfile(result.user); // Change this line
-        } else {
-          toast.error(result?.message || "Failed to fetch user profile");
-        }
+        } 
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
         toast.error("An error occurred while fetching user profile");
@@ -40,11 +38,22 @@ const Dashboard = () => {
     getUser();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+  try {
+    const data = {
+      url: apis().logout,  // Ensure your backend has a logout route that clears the cookie
+      method: "POST",
+    };
+    await httpAction(data);
+
     toast.success("Logged out successfully");
     navigate("/");
-  };
+  } catch (error) {
+    console.error("Logout failed:", error);
+    toast.error("Logout failed");
+  }
+};
+
 
   if (loading) {
     return (

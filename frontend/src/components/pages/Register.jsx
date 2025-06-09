@@ -150,7 +150,7 @@ const Register = () => {
 
                   <div className="form-field">
                     <Button
-                      onClick={() => navigate("/login")}
+                      onClick={() => navigate("/")}
                       startIcon={<ArrowBack />}
                       variant="outlined"
                       fullWidth

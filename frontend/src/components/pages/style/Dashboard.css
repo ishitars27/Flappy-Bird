@@ -2,14 +2,18 @@
 .dashboard-container {
   position: relative;
   min-height: 100vh;
-  padding: 20px;
+  padding: 15px;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  overflow-y: hidden;
 }
 
 /* Leaderboard Button */
 .leaderboard-btn-container {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: 15px;
+  left: 15px;
   z-index: 100;
 }
 
@@ -43,21 +47,27 @@
 /* Profile Header */
 .profile-header {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
   padding: 15px 0;
   position: relative;
+  gap: 10px;
 }
 
 .user-email {
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.9);
-  padding: 8px 15px;
+  padding: 6px 12px;
   border-radius: 20px;
-  margin-right: 15px;
+  margin-right: 10px;
   font-size: 14px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
 .profile-actions {
@@ -74,21 +84,103 @@
     gap: 10px;
 }
 
+/* Game Container */
+.app {
+  max-width: 100%;
+  padding: 20px 10px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.app h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  word-break: break-word;
+}
+
 /* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+  
+  .app h1 {
+    font-size: 1.8rem;
+    margin: 15px 0;
+  }
+}
+
 @media (max-width: 768px) {
   .leaderboard-btn-container {
-    top: 15px;
-    left: 15px;
+    top: 10px;
+    left: 10px;
   }
   
   .leaderboardbtn {
-    padding: 8px 15px;
+    padding: 6px 12px;
     font-size: 10px;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 10px 0;
   }
   
   .user-email {
     font-size: 12px;
-    padding: 6px 12px;
+    padding: 5px 10px;
+    max-width: 180px;
+    margin-right: 0;
+  }
+  
+  .app h1 {
+    font-size: 1.5rem;
+    margin: 10px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 8px;
+  }
+  
+  .leaderboard-btn-container {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .user-email {
+    max-width: 100%;
+    text-align: center;
+    margin: 0;
+  }
+  
+  .app h1 {
+    font-size: 1.3rem;
+    margin: 8px 0;
+  }
+  
+  .profile-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .profile-actions button {
+    width: 100%;
+    max-width: 200px;
   }
 }
 

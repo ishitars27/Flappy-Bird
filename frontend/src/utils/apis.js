@@ -1,5 +1,5 @@
 const apis = () => {
-  const local = "http://localhost:3000";
+  const local = "https://flappybird-pydw.vercel.app";
   const list = {
     registerUser: `${local}/users/register`,
     loginUser : `${local}/users/login`,

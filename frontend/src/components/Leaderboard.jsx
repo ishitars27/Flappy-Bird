@@ -9,16 +9,17 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchScores = async () => {
       try {
-        const response = await fetch('/leaderboard.json');
+        // Fetch data from the backend API
+        const response = await fetch('/api/scores/top10'); // Assuming your API base path is /api/scores
         if (!response.ok) {
-          throw new Error('Failed to fetch leaderboard');
+          throw new Error(`Failed to fetch leaderboard: ${response.statusText}`);
         }
         const data = await response.json();
-        // Sort scores in descending order and take top 10
-        const sortedScores = data.scores
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 10);
-        setScores(sortedScores);
+        if (data.success) {
+          setScores(data.data);
+        } else {
+          throw new Error(data.message || 'Failed to fetch leaderboard data');
+        }
       } catch (err) {
         setError(err.message);
         console.error('Error fetching leaderboard:', err);
@@ -56,18 +57,20 @@ const Leaderboard = () => {
         <span className="date">Date</span>
       </div>
       <div className="leaderboard-scores">
-        {scores.map((entry, index) => (
-          <div key={entry.id} className="leaderboard-entry">
-            <span className="rank">{index + 1}</span>
-            <span className="username">{entry.username}</span>
-            <span className="score">{entry.score}</span>
-            <span className="date">{new Date(entry.date).toLocaleDateString()}</span>
-          </div>
-        ))}
+        {scores.length > 0 ? (
+          scores.map((entry, index) => (
+            <div key={entry._id} className="leaderboard-entry">
+              <span className="rank">{index + 1}</span>
+              <span className="username">{entry.user.name}</span>
+              <span className="score">{entry.score}</span>
+              <span className="date">{new Date(entry.createdAt).toLocaleDateString()}</span>
+            </div>
+          ))
+        ) : (
+          <div className="leaderboard-no-data">No scores available yet. Play to get on the leaderboard!</div>
+        )}
       </div>
-      {/* <Footer/>  */}
   </div>
-    // <Footer/>
   );
 };
 

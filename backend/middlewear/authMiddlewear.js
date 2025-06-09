@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const UserModel = require("../models/userModel"); // Import the User Model
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   try {
     // Access token comes from cookies
     const accessToken = req.cookies?.accessToken;
@@ -11,8 +12,15 @@ const auth = (req, res, next) => {
 
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_KEY);
 
-    req.user = decoded;
-    req.email = decoded.email; // Add this line to set req.email
+    // Find the user by email and attach the full user object to req.user
+    const user = await UserModel.findOne({ email: decoded.email }).select('-password'); // Exclude password
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    req.user = user; // Now req.user will contain the full user object, including _id
+    req.email = decoded.email; // Keep req.email for consistency if needed elsewhere
 
     next();
   } catch (error) {

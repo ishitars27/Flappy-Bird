@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema(
       otp: { type: String },
       send_time: { type: Date },
       limit: { type: Number, default: 5 }
-    }
+    },
+    highestScore: { type: Number, default: 0 } // Add this line
   },
   { timestamps: true }
 );

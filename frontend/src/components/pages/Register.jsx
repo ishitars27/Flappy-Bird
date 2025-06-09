@@ -43,7 +43,7 @@ const Register = () => {
       // Check for both success and status properties
       if (result?.success || result?.status) {
         toast.success(result?.message || "Registration successful!");
-        navigate("/login");
+        navigate("/");
       } else {
         // Handle error case
         toast.error(result?.message || "Registration failed");

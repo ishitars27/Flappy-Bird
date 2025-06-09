@@ -2,7 +2,7 @@ const httpAction = async (data) => {
   try {
     const response = await fetch(data.url, {
       method: data.method || "GET",
-      body: data.body ? JSON.stringify(data.body) : null,
+      body: data.body ? JSON.stringify(data.body) : (data.data ? JSON.stringify(data.data) : null), // Modified line
       headers: {
         "Content-Type": "application/json",
       },

@@ -1,7 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import Bird from './Bird';
-import Pipe from './Pipe';
-import Ground from './Ground';
+import { useState, useRef, useCallback, useEffect } from "react";
+import Bird from "./Bird";
+import Pipe from "./Pipe";
+import Ground from "./Ground";
+import apis from "../utils/apis"; // Import apis
+import httpAction from "../utils/httpActions"; // Import httpAction
 
 // Game constants
 const GRAVITY = 0.4;
@@ -16,9 +18,9 @@ const GROUND_HEIGHT = 100;
 
 // Game states
 const GAME_STATES = {
-  IDLE: 'IDLE',
-  RUNNING: 'RUNNING',
-  GAME_OVER: 'GAME_OVER',
+  IDLE: "IDLE",
+  RUNNING: "RUNNING",
+  GAME_OVER: "GAME_OVER",
 };
 
 let bgAudio; // declare once outside component
@@ -29,7 +31,7 @@ const playbg = () => {
     bgAudio.loop = true;
     bgAudio.volume = 0.5; // optional
   }
-  bgAudio.play();
+  bgAudio.play().catch(e => console.log("Audio play failed:", e));
 };
 
 const stopbg = () => {
@@ -39,26 +41,76 @@ const stopbg = () => {
   }
 };
 
+const playjump = () => {
+  const audio = new Audio("/jump.mp3");
+  audio.play().catch(e => console.log("Jump audio failed:", e));
+};
+
+const playpoint = () => {
+  const audio = new Audio("/point.mp3");
+  audio.play().catch(e => console.log("Point audio failed:", e));
+};
+
+const playdie = () => {
+  const audio = new Audio("/die1.mp3");
+  audio.play().catch(e => console.log("Die audio failed:", e));
+};
+
 function GameDisplay() {
-  // playbg()
   // Game state
   const [gameState, setGameState] = useState(GAME_STATES.IDLE);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
-  const [birdPosition, setBirdPosition] = useState(GAME_AREA_HEIGHT / 2-100);
+  const [birdPosition, setBirdPosition] = useState(GAME_AREA_HEIGHT / 2 - 100);
   const [pipes, setPipes] = useState([]);
+  
   const gameAreaRef = useRef(null);
   const animationFrameId = useRef(null);
   const velocity = useRef(0);
-  const lastPipeId = useRef(null);
   const groundPosition = useRef(0);
+  const scoreRef = useRef(0); // Keep scoreRef updated
+
+  // Keep scoreRef updated whenever score changes
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
+
+  // Fetch highest score from server
+  const fetchHighestScore = useCallback(async () => {
+    try {
+      const data = {
+        url: apis().getUserHighestScore,
+        method: "GET",
+      };
+      const result = await httpAction(data);
+      if (result?.success) {
+        setHighScore(result.highestScore);
+        console.log("✅ Fetched highest score:", result.highestScore);
+      } else {
+        console.error("❌ Failed to fetch highest score:", result?.message);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching highest score:", error);
+    }
+  }, []);
+
+  // Fetch high score on component mount
+  useEffect(() => {
+    fetchHighestScore();
+  }, [fetchHighestScore]);
+
+  // Debugging: Log highScore whenever it changes
+  useEffect(() => {
+    console.log("Current High Score State:", highScore);
+  }, [highScore]);
 
   // Generate a new pipe pair
   const generatePipe = useCallback(() => {
     const minGapFromTop = 100;
     const maxGapFromTop = GAME_AREA_HEIGHT - PIPE_GAP - GROUND_HEIGHT - 50;
-    const gapPosition = Math.random() * (maxGapFromTop - minGapFromTop) + minGapFromTop;
-    
+    const gapPosition =
+      Math.random() * (maxGapFromTop - minGapFromTop) + minGapFromTop;
+
     return {
       id: Date.now() + Math.random(),
       x: GAME_AREA_WIDTH,
@@ -83,67 +135,69 @@ function GameDisplay() {
       resetGame();
     }
     setGameState(GAME_STATES.RUNNING);
+    // Uncomment if you want background music
+    // playbg();
   }, [gameState, resetGame]);
 
   // Handle bird jump
   const handleJump = useCallback(() => {
     if (gameState === GAME_STATES.GAME_OVER) return;
-    
+
     if (gameState === GAME_STATES.IDLE) {
       startGame();
     }
-    
-    velocity.current = JUMP_FORCE;
-    playjump()
-  }, [gameState, startGame]);
-const playjump=()=>{
-  const audio = new Audio("/jump.mp3");
-  audio.play();
-}
-  // Check for collisions
-  const checkCollision = useCallback((pipes) => {
-    // Check collision with ground
-    if (birdPosition >= GAME_AREA_HEIGHT - BIRD_SIZE - GROUND_HEIGHT) {
-      return true;
-    }
-    
-    // Check collision with ceiling
-    if (birdPosition <= 0) {
-      velocity.current = 0;
-      return false;
-    }
 
-    // Check collision with pipes
-    return pipes.some(pipe => {
-      const birdLeft = 100;
-      const birdRight = birdLeft + BIRD_SIZE;
-      const birdTop = birdPosition;
-      const birdBottom = birdPosition + BIRD_SIZE;
-      
-      const pipeRight = pipe.x + PIPE_WIDTH;
-      const pipeLeft = pipe.x;
-      
-      // Check if bird is in the same x-range as the pipe
-      if (birdRight > pipeLeft && birdLeft < pipeRight) {
-        // Check if bird is not in the gap
-        if (birdTop <= pipe.topHeight || birdBottom >= (GAME_AREA_HEIGHT - pipe.bottomHeight - GROUND_HEIGHT)) {
-          return true; // Collision detected
-        }
+    velocity.current = JUMP_FORCE;
+    playjump();
+  }, [gameState, startGame]);
+
+  // Check for collisions
+  const checkCollision = useCallback(
+    (pipes) => {
+      // Check collision with ground
+      if (birdPosition >= GAME_AREA_HEIGHT - BIRD_SIZE - GROUND_HEIGHT) {
+        return true;
       }
-      return false;
-    });
-  }, [birdPosition]);
-const playpoint=()=>{
-  const audio = new Audio("/point.mp3");
-  audio.play();
-}
+
+      // Check collision with ceiling
+      if (birdPosition <= 0) {
+        velocity.current = 0;
+        return false;
+      }
+
+      // Check collision with pipes
+      return pipes.some((pipe) => {
+        const birdLeft = 100;
+        const birdRight = birdLeft + BIRD_SIZE;
+        const birdTop = birdPosition;
+        const birdBottom = birdPosition + BIRD_SIZE;
+
+        const pipeRight = pipe.x + PIPE_WIDTH;
+        const pipeLeft = pipe.x;
+
+        // Check if bird is in the same x-range as the pipe
+        if (birdRight > pipeLeft && birdLeft < pipeRight) {
+          // Check if bird is not in the gap
+          if (
+            birdTop <= pipe.topHeight ||
+            birdBottom >= GAME_AREA_HEIGHT - pipe.bottomHeight - GROUND_HEIGHT
+          ) {
+            return true; // Collision detected
+          }
+        }
+        return false;
+      });
+    },
+    [birdPosition]
+  );
+
   // Check if bird passed a pipe
   const checkPipePassed = useCallback((pipes) => {
     const birdLeft = 100;
     let newPipes = [...pipes];
     let scoreIncrement = 0;
-    
-    newPipes = newPipes.map(pipe => {
+
+    newPipes = newPipes.map((pipe) => {
       if (!pipe.passed && pipe.x + PIPE_WIDTH < birdLeft) {
         scoreIncrement++;
         playpoint();
@@ -151,13 +205,34 @@ const playpoint=()=>{
       }
       return pipe;
     });
-  
+
     if (scoreIncrement > 0) {
-      setScore(prev => prev + scoreIncrement);
+      setScore((prev) => prev + scoreIncrement);
     }
-    
+
     return newPipes;
   }, []);
+
+  // Save score to server
+  const saveScore = useCallback(async (finalScore) => {
+    try {
+      console.log("✅ Attempting to save score:", finalScore);
+      const data = {
+        url: apis().saveScore,
+        method: "POST",
+        data: { score: finalScore },
+      };
+      const result = await httpAction(data);
+      if (result?.success) {
+        console.log("✅ Score saved successfully:", result);
+        fetchHighestScore(); // Fetch highest score again after saving
+      } else {
+        console.error("❌ Failed to save score:", result?.message);
+      }
+    } catch (error) {
+      console.error("❌ Error saving score:", error);
+    }
+  }, [fetchHighestScore]);
 
   // Game loop
   useEffect(() => {
@@ -170,21 +245,21 @@ const playpoint=()=>{
       lastTime = timestamp;
 
       // Update bird position
-      setBirdPosition(prev => {
+      setBirdPosition((prev) => {
         velocity.current += GRAVITY;
         const newPosition = prev + velocity.current;
         return newPosition;
       });
 
       // Update pipes
-      setPipes(prevPipes => {
+      setPipes((prevPipes) => {
         let newPipes = prevPipes
-          .map(pipe => ({
+          .map((pipe) => ({
             ...pipe,
             x: pipe.x - PIPE_SPEED,
           }))
-          .filter(pipe => pipe.x > -PIPE_WIDTH);
-          
+          .filter((pipe) => pipe.x > -PIPE_WIDTH);
+
         // Add new pipe if needed
         const lastPipe = newPipes[newPipes.length - 1];
         if (!lastPipe || lastPipe.x < GAME_AREA_WIDTH - 300) {
@@ -193,51 +268,56 @@ const playpoint=()=>{
             newPipes.push(newPipe);
           }
         }
-        
+
         return newPipes;
       });
-const playdie=()=>{
-  const audio = new Audio("/die1.mp3");
-  audio.play();
-} 
+
       // Update ground position for scrolling effect
       groundPosition.current = (groundPosition.current - PIPE_SPEED) % 16;
 
       // Check collisions and pipe passing
-      setPipes(currentPipes => {
+      setPipes((currentPipes) => {
         const updatedPipes = checkPipePassed(currentPipes);
+
         if (checkCollision(updatedPipes)) {
           setGameState(GAME_STATES.GAME_OVER);
+          stopbg();
           playdie();
-          setHighScore(prev => Math.max(prev, score + (updatedPipes.filter(p => p.passed).length - score)));
-          return updatedPipes;
+
+          // Schedule score saving at the end of current JS task queue
+          setTimeout(() => {
+            const finalScore = scoreRef.current;
+            console.log("Current Score:", scoreRef.current);
+            saveScore(finalScore);
+          }, 0);
         }
+
         return updatedPipes;
       });
 
       animationFrameId.current = requestAnimationFrame(gameLoop);
     };
-    
+
     animationFrameId.current = requestAnimationFrame(gameLoop);
-    
+
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [gameState, checkCollision, checkPipePassed, generatePipe, score]);
+  }, [gameState, checkCollision, checkPipePassed, generatePipe, saveScore]);
 
   // Handle keyboard controls
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.code === 'Space') {
+      if (e.code === "Space") {
         e.preventDefault();
         handleJump();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleJump]);
 
   // Clean up animation frame on unmount
@@ -250,50 +330,51 @@ const playdie=()=>{
   }, []);
 
   return (
-    <div 
+    <div
       ref={gameAreaRef}
       className="game-area"
       style={{
         width: `${GAME_AREA_WIDTH}px`,
         height: `${GAME_AREA_HEIGHT}px`,
-        position: 'relative',
-        overflow: 'hidden',
-        backgroundColor: '#87CEEB',
-        border: '2px solid #333',
-        borderRadius: '8px',
+        position: "relative",
+        overflow: "hidden",
+        backgroundColor: "#87CEEB",
+        border: "2px solid #333",
+        borderRadius: "8px",
         fontFamily: "Jersey 20",
         fontWeight: 400,
         fontStyle: "normal",
-        margin: '0 auto',
+        margin: "0 auto",
       }}
       onClick={gameState === GAME_STATES.IDLE ? startGame : handleJump}
-      id='game-area'
-      
+      id="game-area"
     >
       {/* Score */}
-      <div style={{
-        position: 'absolute',
-        top: '20px',
-        width: '100%',
-        textAlign: 'center',
-        fontSize: '24px',
-        fontWeight: 'bold',
-        color: 'white',
-        textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
-        zIndex: 10,
-      }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "20px",
+          width: "100%",
+          textAlign: "center",
+          fontSize: "24px",
+          fontWeight: "bold",
+          color: "white",
+          textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+          zIndex: 10,
+        }}
+      >
         {score}
       </div>
 
       {/* Bird */}
-      <Bird 
-        position={birdPosition} 
+      <Bird
+        position={birdPosition}
         isGameOver={gameState === GAME_STATES.GAME_OVER}
       />
 
       {/* Pipes */}
-      {pipes.map(pipe => (
-        <Pipe 
+      {pipes.map((pipe) => (
+        <Pipe
           key={pipe.id}
           x={pipe.x}
           topHeight={pipe.topHeight}
@@ -304,45 +385,49 @@ const playdie=()=>{
           groundHeight={GROUND_HEIGHT}
         />
       ))}
-{/* {playbg()} */}
+
       {/* Ground */}
-      <Ground 
-        position={groundPosition.current} 
-        height={GROUND_HEIGHT} 
+      <Ground
+        position={groundPosition.current}
+        height={GROUND_HEIGHT}
         width={GAME_AREA_WIDTH}
       />
 
       {/* Game Over Overlay */}
       {gameState === GAME_STATES.GAME_OVER && (
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 20,
-          color: 'white',
-          textAlign: 'center',
-        }}>
-          <h2 style={{fontSize: '5rem', fontFamily: 'Jersey 20'}}>Game Over!</h2>
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 20,
+            color: "white",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ fontSize: "5rem", fontFamily: "Jersey 20" }}>
+            Game Over!
+          </h2>
           <p>Score: {score}</p>
           <p>High Score: {highScore}</p>
-          <button 
+          <button
             onClick={startGame}
             style={{
-              marginTop: '20px',
-              padding: '10px 30px',
-              fontSize: '18px',
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-          
+              marginTop: "20px",
+              padding: "10px 30px",
+              fontSize: "18px",
+              backgroundColor: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
             }}
           >
             Play Again
@@ -352,23 +437,23 @@ const playdie=()=>{
 
       {/* Start Screen */}
       {gameState === GAME_STATES.IDLE && (
-        
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 20,
-          color: 'white',
-          textAlign: 'center',
-        }}>
-         
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 20,
+            color: "white",
+            textAlign: "center",
+          }}
+        >
           <h2>Flappy Bird</h2>
           <p>Click or press SPACE to start</p>
           <p>Press SPACE to jump</p>

@@ -8,7 +8,8 @@ import Login from "./components/pages/Login";
 import Dashboard from "./components/pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute"; // Add this import
 import LeaderboardPage from "./components/pages/LeaderboardPage";
-
+// import NotFound from "./components/pages/NotFound";
+import Notfound from "./components/pages/Notfound";
 function App() {
   return (
     // Remove <BrowserRouter> here as it's already in main.jsx
@@ -21,7 +22,9 @@ function App() {
       <Route path="/otp" element={<OtpVerify />} />
       <Route path="/update/password" element={<UpdatePassword />} />
       <Route path="/leaderboard" element={<LeaderboardPage />} />
+      <Route path="*" element={<Notfound />} />
       {/* Protected route for Dashboard */}
+
       <Route
         path="/dashboard"
         element={

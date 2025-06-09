@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  console.log(userProfile);
 
   useEffect(() => {
     const getUser = async () => {
@@ -58,7 +59,10 @@ const Dashboard = () => {
     <div className="dashboard-container">
       {/* Leaderboard Button at Top Left */}
       <div className="leaderboard-btn-container">
-        <button className="leaderboardbtn" onClick={() => navigate("/leaderboard")}>
+        <button
+          className="leaderboardbtn"
+          onClick={() => navigate("/leaderboard")}
+        >
           🏆 Leaderboard
         </button>
       </div>
@@ -66,10 +70,11 @@ const Dashboard = () => {
       {/* User Profile Section */}
       <div className="user-profile-section">
         <div className="profile-header">
-          <div className="user-email">
-            <CiUser size={20} style={{ marginRight: '8px' }} />
-            {userProfile?.email}
-          </div>
+          {/* <div className="user-email">
+            {/* <CiUser size={20} style={{ marginRight: '8px' }} />  */}
+          {/* {userProfile?.email} */}
+          {/* </div>  */}
+          <div></div>
           <div className="profile-actions">
             <Button
               variant="contained"

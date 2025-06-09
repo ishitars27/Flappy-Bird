@@ -22,8 +22,8 @@ function App() {
       <Route path="/otp" element={<OtpVerify />} />
       <Route path="/update/password" element={<UpdatePassword />} />
       <Route path="/leaderboard" element={<LeaderboardPage />} />
-      <Route path="*" element={<Notfound/>} />
       {/* Protected route for Dashboard */}
+
       <Route
         path="/dashboard"
         element={

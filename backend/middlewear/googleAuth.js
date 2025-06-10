@@ -1,7 +1,7 @@
 const generateToken = require("../controllers/googleAuthControllers");
 const UserModel = require("../models/userModel");
 
-const googleAuth = async (req, res, next) => {
+const googleAuth = async (req, res) => {
   try {
     const email = req.user?._json?.email;
 
@@ -21,19 +21,10 @@ const googleAuth = async (req, res, next) => {
 
     const accessToken = generateToken(user.email);
 
-    // ✅ Send token in JSON response instead of cookie
-    res.status(200).json({
-      message: "Login successful",
-      token: accessToken,
-      user: {
-        name: user.name,
-        email: user.email,
-        _id: user._id,
-      },
-    });
+    res.redirect(`https://flappybird-fdme.vercel.app/auth-success?token=${accessToken}`);
   } catch (error) {
     console.error("Google Auth Middleware Error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.redirect(`https://flappybird-fdme.vercel.app/login?error=auth_failed`);
   }
 };
 

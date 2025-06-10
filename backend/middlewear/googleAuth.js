@@ -1,6 +1,5 @@
 const generateToken = require("../controllers/googleAuthControllers");
 const UserModel = require("../models/userModel");
-const jwt = require("jsonwebtoken");
 
 const googleAuth = async (req, res, next) => {
   try {
@@ -22,19 +21,19 @@ const googleAuth = async (req, res, next) => {
 
     const accessToken = generateToken(user.email);
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-     
+    // ✅ Send token in JSON response instead of cookie
+    res.status(200).json({
+      message: "Login successful",
+      token: accessToken,
+      user: {
+        name: user.name,
+        email: user.email,
+        _id: user._id,
+      },
     });
-
-    req.userInfo = user;
-
-    next();
   } catch (error) {
     console.error("Google Auth Middleware Error:", error);
-    next(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 

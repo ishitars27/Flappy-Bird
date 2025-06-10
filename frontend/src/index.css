@@ -22,6 +22,11 @@
   padding: 0;
   /* overflow-x: hidden; */
   /* cursor: url("/haha.cur") 0 0, auto !important; */
+  background-image: url(/ground.png.);
+  /* background-size: cover; */
+  background-position: ;
+  background-size: cover;
+  background-repeat: repeat;
 }
 body::-webkit-scrollbar-thumb {
   background-color: #4a90e2;
@@ -167,11 +172,10 @@ button:focus-visible {
   }
 }
 
-/* High DPI displays */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  body {
+  /* body {
     background-size: contain;
-  }
+  } */
 }
 
 /* Landscape orientation on mobile */

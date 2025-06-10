@@ -1,32 +1,47 @@
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 /* Dashboard Container */
 .dashboard-container {
-  position: relative;
   min-height: 100vh;
-  padding: 15px;
-  max-width: 100%;
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
   overflow-x: hidden;
-  box-sizing: border-box;
   overflow-y: hidden;
 }
 
-/* Leaderboard Button */
+/* Header Section */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 .leaderboard-btn-container {
-  position: fixed;
-  top: 15px;
-  left: 15px;
   z-index: 100;
+  order: 1;
 }
 
 .leaderboardbtn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-size: 12px;
-  box-shadow: 0 4px 0 #4a90e2, 0 4px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 0 #4a90e2, 0 4px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -36,155 +51,156 @@
 .leaderboardbtn:hover {
   background-color: #45a049;
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #2E7D32, 0 6px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 0 #2e7d32, 0 6px 4px rgba(0, 0, 0, 0.2);
 }
 
 .leaderboardbtn:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 #2E7D32, 0 2px 2px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 0 #2e7d32, 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Profile Header */
+/* Profile Section */
+.user-profile-section {
+  order: 2;
+  margin-left: auto;
+}
+
 .profile-header {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
   align-items: center;
-  padding: 15px 0;
-  position: relative;
-  gap: 10px;
+  gap: 1rem;
 }
 
 .user-email {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px 12px;
-  border-radius: 20px;
-  margin-right: 10px;
-  font-size: 14px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
+  display: none; /* Hidden as per current JSX */
 }
 
 .profile-actions {
   display: flex;
-  gap: 10px;
+  gap: 0.5rem;
+}
+
+.profile-actions button {
+  white-space: nowrap;
 }
 
 /* Profile Info */
 .profile-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-/* Game Container */
+/* Main Content */
 .app {
-  max-width: 100%;
-  padding: 20px 10px;
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  box-sizing: border-box;
+  padding: 1rem;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .app h1 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  word-break: break-word;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  margin: 0 0 1.5rem 0;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Adjustments */
-@media (max-width: 1024px) {
-  .dashboard-container {
-    padding: 10px;
+@media (min-width: 768px) {
+  .dashboard-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
-  
-  .app h1 {
-    font-size: 1.8rem;
-    margin: 15px 0;
+
+  .leaderboard-btn-container {
+    position: static;
+    margin: 0;
+  }
+
+  .user-profile-section {
+    margin-left: auto;
   }
 }
 
-@media (max-width: 768px) {
-  .leaderboard-btn-container {
-    top: 10px;
-    left: 10px;
-  }
-  
-  .leaderboardbtn {
-    padding: 6px 12px;
-    font-size: 10px;
-  }
-  
-  .profile-header {
+@media (max-width: 767px) {
+  .dashboard-header {
     flex-direction: column;
-    align-items: flex-end;
-    padding: 10px 0;
+    align-items: stretch;
+    gap: 1rem;
   }
-  
-  .user-email {
-    font-size: 12px;
-    padding: 5px 10px;
-    max-width: 180px;
-    margin-right: 0;
-  }
-  
-  .app h1 {
-    font-size: 1.5rem;
-    margin: 10px 0;
-  }
-}
 
-@media (max-width: 480px) {
-  .dashboard-container {
-    padding: 8px;
-  }
-  
   .leaderboard-btn-container {
-    position: relative;
-    top: 0;
-    left: 0;
-    margin-bottom: 10px;
     width: 100%;
     display: flex;
     justify-content: center;
   }
-  
+
+  .user-profile-section {
+    width: 100%;
+  }
+
   .profile-header {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    justify-content: center;
   }
-  
-  .user-email {
-    max-width: 100%;
-    text-align: center;
-    margin: 0;
-  }
-  
-  .app h1 {
-    font-size: 1.3rem;
-    margin: 8px 0;
-  }
-  
+
   .profile-actions {
     width: 100%;
     justify-content: center;
   }
-  
+
   .profile-actions button {
     width: 100%;
     max-width: 200px;
   }
 }
 
+/* Small screens */
+@media (max-width: 480px) {
+  .dashboard-container {
+    background-image: url(/ground.png.);
+    /* background-size: cover; */
+    background-size: cover;
+    background-repeat: no-repeat;
+    /* padding: 0.75rem; */
+  }
+
+  .app {
+    padding: 0.5rem;
+  }
+
+  .app h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .leaderboardbtn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Game-specific styles */
 #linklead {
-    text-decoration: none !important;
-    color: white !important;
+  text-decoration: none !important;
+  color: white !important;
+}
+
+/* Loading State */
+.dashboard-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  font-size: 1.2rem;
+  color: #333;
 }
